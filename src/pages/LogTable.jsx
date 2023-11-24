@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { InputLabel, Typography } from '@mui/material';
 import { Card, Grid, TextField, Button } from "@mui/material";
@@ -26,6 +26,15 @@ const rows = [
     { id: 1, firstName: 'John', lastName: 'Doe', age: 30 },
     { id: 2, firstName: 'Jane', lastName: 'Doe', age: 25 },
     { id: 3, firstName: 'Bob', lastName: 'Smith', age: 40 },
+    { id: 4, firstName: 'John', lastName: 'Doe', age: 30 },
+    { id: 5, firstName: 'Jane', lastName: 'Doe', age: 25 },
+    { id: 6, firstName: 'Bob', lastName: 'Smith', age: 40 },
+    { id: 7, firstName: 'John', lastName: 'Doe', age: 30 },
+    { id: 8, firstName: 'Jane', lastName: 'Doe', age: 25 },
+    { id: 9, firstName: 'Bob', lastName: 'Smith', age: 40 },
+    { id: 10, firstName: 'John', lastName: 'Doe', age: 30 },
+    { id: 11, firstName: 'Jane', lastName: 'Doe', age: 25 },
+    { id: 12, firstName: 'Bob', lastName: 'Smith', age: 40 },
 ];
 
 const getRowId = (row) => row.id;
@@ -39,7 +48,29 @@ const CustomIdCell = ({ value }) => {
 
 const LogTable = () => {
     const [state, setState] = useState({});
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(5);
 
+
+    useEffect(() => {
+        // Fetch data from the server based on currentPage and pageSize
+        // Replace this with your actual API call
+        fetchDataFromServer();
+      }, [currentPage, pageSize]);
+    
+      const fetchDataFromServer = () => {
+        // Replace this with your actual API endpoint and parameters
+        const apiUrl = `/api/data?pageSize=${pageSize}&page=${currentPage}`;
+    
+        fetch(apiUrl)
+          .then((response) => response.json())
+          .then((data) => {
+            // setRows(data.rows); // Set the data rows
+            // setTotalRows(data.total); // Set the total number of rows on the server
+          })
+          .catch((error) => console.error('Error fetching data:', error));
+      };
+  
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -52,6 +83,14 @@ const LogTable = () => {
             [e.target.id]: e.target.value,
         }));
     };
+
+
+    const handlePaginationModelChange = (params) => {
+        setCurrentPage(params.page);
+        setPageSize(params.pageSize);
+    };
+
+
 
     return (
         <div style={{ minHeight: 600, width: '100%' }}>
@@ -130,11 +169,20 @@ const LogTable = () => {
                 <DataGrid
                     rows={rows}
                     columns={columns}
-                    pageSize={5}
-                    rowsPerPageOptions={[5, 10, 20]}
+                    initialState={{
+                        pagination: {
+                            paginationModel: {
+                                pageSize: 5,
+                            },
+                        },
+                    }}
+                    onPaginationModelChange={handlePaginationModelChange}
+                    pageSizeOptions={[5, 10, 20]}
                     checkboxSelection={false} // Set checkboxSelection to false
                     disableSelectionOnClick
                     getRowId={getRowId}
+                    paginationMode="server"
+
                 />
             </Card>
         </div>
